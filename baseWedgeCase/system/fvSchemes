@@ -1,0 +1,66 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// I am just going to start off with the ones from the original motorBike, and we can work back from there
+// The mesh is very high quality, so hopefully we can actually see the difference that some of these things make
+
+ddtSchemes
+{
+    // Used to be Euler for pimpleFoam
+    default         steadyState;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+    // I tink tis one as a lot of potential to be caned
+    grad(U)         cellLimited Gauss linear 1;
+}
+
+divSchemes
+{
+    default         none; // FOrces you to specify all of tem
+
+    div(phi,U)      bounded Gauss linearUpwindV grad(U);
+    div(phi,k)      bounded Gauss upwind;
+    div(phi,omega)  bounded Gauss upwind;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+
+    // laplacian(diffusivity,cellMotionU) Gauss linear uncorrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+wallDist {
+    method meshWave;
+}
+
+
+// ************************************************************************* //

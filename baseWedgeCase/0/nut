@@ -1,0 +1,52 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      nut;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -1 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+
+    front
+    {
+        type            wedge;
+    }
+    
+    back
+    {
+        type            wedge;
+    }
+
+    left
+    {
+        type            calculated;
+        value           $internalField;
+    }
+
+    right
+    {
+        type            calculated;
+        value           $internalField;
+    }
+
+    top
+    {
+        type            calculated;
+        value           $internalField;
+    }
+
+    noseCone
+    {
+        // Since it has a k in there, I assume that this is a similar approach to y* from y+
+        type            nutkWallFunction;
+        value           $internalField;
+    }
+}

@@ -1,0 +1,33 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+flowVelocity    (100 0 0 );
+pressure             0;
+
+// Mesh non-orthogonality is 61. That is pretty good
+
+// 0.24 (starting value) gives 0.0124. Actually 0.293. Rasaero says 0.18. From my brief research, this could indicate that our tKE should be lower to match Rasaero, though I doubt it.
+// With a higher accuracy mesh, I got 0.255283
+// I'm thinking that a really good mesh and some alterations to fvSchemes could get me to success
+// with Gauss linearUpwindV cellMDLimited Gauss linear 1, I got 0.24373
+// With increased surface layers, I got 0.231088
+// With some unbounded it converged at about the same rate to 0.230934
+
+// With slightly different fvSchemes, I got 0.242
+
+
+// kEpsilon exploded, so I think I am going to stick with the kOmegaSST for now and just focus on the other stuff. That might be dumb, but I need to do more researc on the different turbulence sims anyways.
+
+
+// It is interesting that everything decreases the CD
+// 0.75 gives 0.0125 (I think that the residuals are slightly lower)
+// 2.5 gives 0.0126 with same residuals
+// 25 gives 0.138 with low residuals
+turbulentKE          0.24; 
+turbulentOmega       1.78;
+epsilon              0.03; // This value is incorrect but in reasonable territory, just want to see if it works

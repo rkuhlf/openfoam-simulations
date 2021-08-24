@@ -1,0 +1,47 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+
+
+forceCoeffs1
+{
+    type            forceCoeffs;
+
+    libs            ("libforces.so");
+
+    writeControl    timeStep;
+    timeInterval    1;
+
+    log             yes;
+
+    patches         (noseCone);
+    
+    // TODO: Need to fix and learn this stuff for incompressible
+    rho             rhoInf;      // Indicates incompressible
+    rhoInf          1;           // Redundant for incompressible
+    
+    // I have no idea if these are correct
+    liftDir         (0 0 1);
+    dragDir         (1 0 0);
+    CofR            (0 0 0); // I believe this is sort of supposed to be the center of mass
+    pitchAxis       (0 1 0);
+    magUInf         50;        // Free stream velocity
+    lRef            0.6096;        // I think this has sometin to do with calculating reynolds
+    Aref            0.00016214639;        // Calculated based on radius, not sure how this is controlled for a wedge
+    /*
+    binData
+    {
+        nBin        20;          // output data into 20 bins
+        direction   (1 0 0);     // bin direction
+        cumulative  yes;
+    }
+    */
+}
+
+
+// ************************************************************************* //

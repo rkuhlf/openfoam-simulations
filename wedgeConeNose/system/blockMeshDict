@@ -1,0 +1,210 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters 1;
+
+// -7.5 is the far left corner
+// -7 is the start of the cone
+// -3.5 is the end of the cone
+// 0 is the bottom right corner
+
+// 0.75 is the height at the start of the cone
+// 2 is the height at the end of the cone
+// 2.5 is the height of the entire container
+
+// Set up some internal fields for this
+height      0.3048;
+
+coneHeight  0.06096;
+
+front       -0.762;
+coneFront   -0.3048;
+coneBack    #calc "-1 * $coneFront";
+back        3.3528;
+
+desiredDivisions 144;
+topOffset   #calc "2 * Foam::constant::mathematical::pi * $height / $desiredDivisions / 2";
+coneOffset  #calc "$topOffset * $coneHeight / $height";
+
+
+
+// If I wanted to be really clear, I could make variables with names that correspond to a vertice number
+vertices
+(
+    // atm I count 16 vertices in mine & 20 in theirs
+
+    ($front 0 0) // 0
+    ($coneFront 0 0)
+    
+    ($front $height #calc "-1 * $topOffset") // 2
+    ($front $height $topOffset)
+    
+    ($coneFront $height #calc "-1 * $topOffset") // 4
+    ($coneFront $height $topOffset)
+    
+    
+    ($coneBack 0 0) // 6
+    ($coneBack $coneHeight #calc "-1 * $coneOffset") // 7
+    ($coneBack $coneHeight $coneOffset)
+    
+    ($coneBack $height #calc "-1 * $topOffset") // 9
+    ($coneBack $height $topOffset)
+    
+    
+    ($back 0 0) // 11
+    
+    ($back $coneHeight #calc "-1 * $coneOffset") // 12
+    ($back $coneHeight $coneOffset)
+    
+    
+    ($back $height #calc "-1 * $topOffset") // 14
+    ($back $height $topOffset)
+);
+
+horizontalSplits 300;
+horizontalGrading (
+    (0.8 0.4 0.2) // I tink I sould line it up so te volume never as a sarp increase
+    (0.2 0.6 0.15) // 20% space, 50% cells, 0.2 grading
+);
+
+verticalSplits 300;
+verticalGrading (
+    (0.15 0.7 14) // 20% space, 50% cells, 0.2 grading
+    (0.85 0.3 13) // I tink I sould line it up so te volume never as a sarp increase
+);
+
+blocks
+(
+    // Because I numbered these in a naive sort of way, the third number of the splits adds horizontal cuts, and the first number adds vertical cuts. The second numbers should be ignored, since we only want a one cell wide simulation
+    // Touches the wedge
+    hex (2 4 5 3 0 1 1 0) (400 1 $horizontalSplits) simpleGrading (0.4 1 $horizontalGrading)
+    // One point touches the wedge
+    hex (4 9 10 5 1 7 8 1) (600 1 $horizontalSplits) simpleGrading (1 1 $horizontalGrading)
+    
+    // Top Right
+    hex (9 14 15 10 7 12 13 8) ($verticalSplits 1 $horizontalSplits) simpleGrading ($verticalGrading 1 $horizontalGrading)
+    // Bottom Right, touches wedge twice
+    hex (7 12 13 8 6 11 11 6) ($verticalSplits 1 70) simpleGrading ($verticalGrading 1 1)
+);
+
+edges
+(
+);
+
+// I believe that it is probably the gradation that is causing errors
+    // Each cell must have a matching cell next to it, and that doesn't work if one of the sides is split into 20 pieces
+
+boundary
+(
+    // Should include only one top boundary
+    
+    // For some reason this is just the two lines that it rotates around
+    // Idk what this does #want-to-learn
+    // Updated
+    
+    axis
+    {
+        type empty;
+        faces
+        (
+            (0 1 1 0)
+            (6 11 11 6)
+        );
+    }
+    
+    // Vertices with positive z values
+    // Updated
+    front
+    {
+        type wedge;
+        faces
+        (
+            (0 1 3 5)
+            (1 5 8 10)
+            (8 10 13 15)
+            (6 8 11 13)
+        );
+    }
+    
+    // All of the vertices with negative z values
+    // I have no idea if the order of vertices matters here
+    back
+    {
+        type wedge;
+        faces
+        (
+            // Updated
+            (0 1 2 4)
+            (1 4 7 9)
+            (7 9 12 14)
+            (6 7 11 12)
+        );
+    }
+    
+    // Updated and renamed
+    top
+    {
+        // Three faces because of the points that come up. I don't know if you could get away with only one, I'll start with that
+        type patch; // It needs to be a slip thing
+        faces
+        (
+            (2 3 5 4)
+            (4 5 10 9)
+            (9 10 15 14)
+        );
+    }
+    
+    // Renamed and updated
+    right
+    {
+        type patch;
+        // I think this might need to be an outlet
+        faces
+        (
+            (11 12 13 11)
+            (12 13 15 14)
+        );
+    }
+    
+    // Updated
+    left
+    {
+        // This should probably be an inlet
+        type patch;
+        faces
+        (
+            (0 3 2 0)
+        );
+    }
+    
+    // Updated and renamed
+    noseCone
+    {
+        type wall;
+        faces
+        (
+            (1 8 7 1)
+            (6 7 8 6)
+        );
+    }
+    
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

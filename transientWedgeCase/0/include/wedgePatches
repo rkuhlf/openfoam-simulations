@@ -1,0 +1,11 @@
+front {
+    type wedge;
+}
+
+back {
+    type wedge;
+}
+
+top {
+    type slip;
+}

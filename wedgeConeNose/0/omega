@@ -1,0 +1,36 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      omega;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include        "include/variables"
+
+dimensions      [0 0 -1 0 0 0 0];
+
+internalField   uniform $turbulentOmega;
+
+boundaryField
+{
+
+    #include "include/fixedInlet"
+
+    right
+    {
+        type            inletOutlet;
+        inletValue      $internalField;
+        value           $internalField;
+    }
+
+    noseCone
+    {
+        // omegaWallFunction sets the dissipation explicitly based on DNS data. There's really no wiggle room here, just make sure you get y+ right.
+        type            omegaWallFunction;
+        value           $internalField;
+    }
+
+    #include "include/wedgePatches"
+}

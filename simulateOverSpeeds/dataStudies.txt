@@ -1,0 +1,53 @@
+I think that trying a compressible solver has a small amount of potential. I also want to try and set up an LES simulation.
+
+I think that a wedge simulation is better than a 2D simulation. The 2D simulation assumes that the nose cone is extended infinitely sideways, the wedge assumes that it goes all the way around.
+
+The only other thing to do is to try to simplify the simulation a little bit. The nose cone could definitely work with only a wedge simulation. It might be just as effective with a 2D simulation, and even then with only the top half and a symmetry wall beneath
+
+
+I would like to do a comparison of kEpsilon and kOmegaSST for this, but I don't think that I will get around to it. I think that Spalart-Allmaras could also be applicable, and I am curious to see if LES is a reasonable way to solve this kind of problem.
+
+I think that the most important thing is going to be a mesh refinement study with the simulation settings that I have atm. Once I get the mesh fully figured out, I think I will play around with some of the fvSchemes. Particularly, I am curious to see the effects of nonOrthogonalCorrectors and different schemes for the SIMPLE algorithm. I suspect that for a sort of nonorthogonal mesh like the one I have, gradientSchemes might be important as well.
+
+I am also slightly concerned that CD values for this kind of thing will require roughness corrected wall functions. So long as the CFD continues to overestimate CD though, I am not particularly bothered because I think it is a correcting error.
+
+So far I have only been comparing CD values to those from Rasaero. It would probably be good to get some more confirmation data. In addition, I totally didn't realize that the size of the object would affect the Reynolds number, which affects the CD, which means that the size of the nose cone in Rasaero has to exactly match the size of the nose cone in OpenFoam (atm it doesn't)
+
+https://digital.library.unt.edu/ark:/67531/metadc61396/m2/1/high_res_d/19930088751.pdf
+https://ntrs.nasa.gov/api/citations/19650020584/downloads/19650020584.pdf
+
+
+Effect of the number of divisions given in blockMesh
+
+
+Effect of the number of divisions given on the surface of the object for snappyHexMesh
+
+
+
+Effect of nSurfaceLayers
+For some reason the y+ isn't really working and I don't think AddLayers is either.
+I finally got some boundary layers to add, and at least some of the cells have y+ <= 1, but the numbers still aren't great
+7 -> 0.236 (from memory)
+8 -> 0.2355
+
+
+
+I was unaware, but apparently the CFL number is meaningless for a steady-state calculation. I am still curious to see the different effects that time steps give.
+0.1: 0.233024; Didn't converge for nearly as long, but this number is very accurate
+0.3: 0.233024
+I suspect I could get data nearly as good at 0.5 to 0.8ish, so I'll come back to this in a second
+1.0: 0.233218
+
+
+Effect of nonOrthogonal correctors (Appears to do nothing, may be making it converge faster)
+Using deltaT = 0.3
+0: 0.233024
+3: 0.233022
+
+
+I am also curious to see if giving more iterations makes the calculation more effective, or even if it ever converges. After running quite a few simulations, I can say that anecdotally it reaches the final value at around 80 seconds, but it will keep fluttering around that value for a while
+
+
+
+Trying out different schemes
+

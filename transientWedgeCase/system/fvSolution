@@ -1,0 +1,165 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+solvers
+{
+    p
+    {
+        solver    GAMG;
+        smoother  GaussSeidel;
+        tolerance 1e-7; // When is it solved good enough
+        relTol    0.01;
+    }
+    
+    // Phi
+    // {
+    //    $p;
+    // }
+    
+    U
+    {
+        solver    smoothSolver;
+        smoother  GaussSeidel
+        tolerance 1e-8;
+        relTol    0.1;
+        nSweeps   1;
+    }
+
+    k
+    {
+        solver    smoothSolver;
+        smoother  GaussSeidel;
+        tolerance 1e-8;
+        relTol    0.1;
+        nSweeps   1;
+    }
+    
+    omega
+    {
+        solver    smoothSolver;
+        smoother  GaussSeidel;
+        tolerance 1e-8;
+        relTol    0.1;
+        nSweeps   1;
+    }
+}
+
+PIMPLE
+{
+    nNonOrthogonalCorrectors 0; // Hopefully this makes no difference on my mesh
+    consistent yes; // idk what this means TODO
+    
+    // TODO change this up and see what it does
+    pRefCell  0;
+    pRefValue 0;
+}
+
+potentialFlow
+{
+    // Runs far fewer outer loops
+    nNonOrthogonalCorrectors 10;
+    
+    PhiRefCell  0;
+    PhiRefValue 0; 
+}
+
+relaxationFactors
+{
+    equations
+    {
+        U      0.9;
+        k      0.7;
+        omega  0.7;
+    }
+}
+
+cache
+{
+    grad(U);
+}
+
+/*
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        tolerance       0;
+        relTol          0.01;
+        smoother        GaussSeidel;
+        cacheAgglomeration no;
+    }
+
+    pFinal
+    {
+        $p;
+        tolerance       1e-06;
+        relTol          0;
+    }
+
+    "pcorr.*"
+    {
+        $p
+        tolerance       0.02;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-05;
+        relTol          0.1;
+    }
+
+    UFinal
+    {
+        $U;
+        tolerance       1e-05;
+        relTol          0;
+    }
+
+    cellMotionUx
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-08;
+        relTol          0;
+    }
+}
+
+
+PIMPLE
+{
+    correctPhi          yes;
+    nOuterCorrectors    2;
+    nCorrectors         1;
+    nNonOrthogonalCorrectors 0;
+}
+
+relaxationFactors
+{
+    equations
+    {
+        ".*"            1;
+    }
+}
+*/
+
+
+// ************************************************************************* //

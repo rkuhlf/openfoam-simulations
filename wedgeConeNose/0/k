@@ -1,0 +1,39 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      k;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include        "include/variables"
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform $turbulentKE;
+
+boundaryField
+{
+
+    //- Define inlet conditions
+    #include "include/fixedInlet"
+
+    right
+    {
+        type            inletOutlet;
+        inletValue      $internalField;
+        value           $internalField;
+    }
+
+    noseCone
+    {
+        type            kqRWallFunction;
+        value           $internalField;
+    }
+
+    #include "include/wedgePatches"
+}
+
+
+// ************************************************************************* //
